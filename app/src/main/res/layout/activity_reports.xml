@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical"
+ android:padding="20dp" android:layoutDirection="rtl" android:background="@drawable/bg_screen">
+ <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="تقارير الاختبار"
+  android:textSize="26sp" android:textStyle="bold" android:textColor="#171717"/>
+ <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="آخر تقرير محفوظ لكل تطبيق"
+  android:textSize="14sp" android:textColor="#6D6A64" android:paddingBottom="12dp"/>
+ <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:background="@drawable/bg_card">
+  <TextView android:id="@+id/reportsText" android:layout_width="match_parent" android:layout_height="wrap_content"
+   android:padding="18dp" android:text="لا توجد تقارير محفوظة بعد" android:textSize="15sp" android:textColor="#242424" android:lineSpacingExtra="4dp"/>
+ </ScrollView>
+ <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center"
+  android:paddingTop="10dp" android:text="أبوسلطان • Darbak Test Station" android:textColor="#B68A35" android:textStyle="bold"/>
+</LinearLayout>
