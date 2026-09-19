@@ -28,6 +28,7 @@ public class MainActivity extends Activity {
     private TextView apkInfo;
     private Button installApk;
     private File candidateApk;
+    private String lastReport = "";
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -104,8 +105,7 @@ public class MainActivity extends Activity {
 
             candidateApk = temp;
             installApk.setEnabled(true);
-            apkInfo.setText(
-                    "الحزمة: " + candidate.packageName +
+            lastReport = "الحزمة: " + candidate.packageName +
                     "\nالإصدار المرشح: " + version + " (" + candidate.versionCode + ")" +
                     "\nالمثبت: " + installedText +
                     "\nالمقارنة: " + comparison +
@@ -117,10 +117,25 @@ public class MainActivity extends Activity {
                     "\nABI: " + abiText +
                     "\n\nبوابة Acer: " + (acerAbiOk ? "✅ متوافق معماريًا" : "❌ ABI غير مناسب") +
                     "\nبوابة T3: " + (t3Ready ? "✅ متوافق مبدئيًا" : "❌ يحتاج معالجة") +
-                    "\nملاحظة: اعتماد T3 النهائي يتطلب الاختبار على الشاشة الحقيقية");
+                    "\nملاحظة: اعتماد T3 النهائي يتطلب الاختبار على الشاشة الحقيقية";
+            apkInfo.setText(lastReport);
+            saveReport(candidate.packageName, lastReport);
         } catch (Exception e) {
             apkInfo.setText("❌ فشل الفحص: " + e.getClass().getSimpleName());
         }
+    }
+
+    private void saveReport(String packageName, String report) {
+        if (!getSharedPreferences("station", MODE_PRIVATE).getBoolean("history", true)) return;
+        try {
+            File dir = new File(getFilesDir(), "reports");
+            if (!dir.exists()) dir.mkdirs();
+            String safe = packageName.replaceAll("[^A-Za-z0-9._-]", "_");
+            File out = new File(dir, safe + "-latest.txt");
+            try (FileOutputStream fos = new FileOutputStream(out)) {
+                fos.write(("Darbak Test Station\n" + new java.util.Date() + "\n\n" + report).getBytes("UTF-8"));
+            }
+        } catch (Exception ignored) { }
     }
 
     private void installCandidate() {
