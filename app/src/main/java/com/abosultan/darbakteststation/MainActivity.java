@@ -7,6 +7,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.Settings;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
@@ -19,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import android.content.pm.Signature;
 
 public class MainActivity extends Activity {
     private static final int PICK_APK = 1001;
@@ -84,6 +86,8 @@ public class MainActivity extends Activity {
                     ? candidate.applicationInfo.minSdkVersion : 0;
             boolean android7Ok = minSdk == 0 || minSdk <= 25;
             int permissionCount = candidate.requestedPermissions == null ? 0 : candidate.requestedPermissions.length;
+            String permissionSummary = permissionSummary(candidate.requestedPermissions);
+            String signer = signerSummary(pm, temp);
             Set<String> abis = readAbis(temp);
             String abiText = abis.isEmpty() ? "لا توجد مكتبات Native (مرن معماريًا)" : joinAbis(abis);
             boolean acerAbiOk = abis.isEmpty() || abis.contains("x86") || abis.contains("x86_64");
@@ -100,7 +104,8 @@ public class MainActivity extends Activity {
                     "\nMin SDK: " + (minSdk == 0 ? "غير متاح" : minSdk) +
                     "\nتوافق Android 7.1 / API 25: " + (android7Ok ? "✅" : "❌") +
                     "\nالحجم: " + kb + " KB" +
-                    "\nالصلاحيات: " + permissionCount +
+                    "\nالصلاحيات: " + permissionCount + permissionSummary +
+                    "\nالتوقيع: " + signer +
                     "\nABI: " + abiText +
                     "\n\nبوابة Acer: " + (acerAbiOk ? "✅ متوافق معماريًا" : "❌ ABI غير مناسب") +
                     "\nبوابة T3: " + (t3Ready ? "✅ متوافق مبدئيًا" : "❌ يحتاج معالجة") +
@@ -108,6 +113,27 @@ public class MainActivity extends Activity {
         } catch (Exception e) {
             apkInfo.setText("❌ فشل الفحص: " + e.getClass().getSimpleName());
         }
+    }
+
+    private String permissionSummary(String[] permissions) {
+        if (permissions == null || permissions.length == 0) return " (لا توجد)";
+        int dangerousLike = 0;
+        String[] keys = {"LOCATION","CAMERA","RECORD_AUDIO","READ_","WRITE_","CALL_PHONE","READ_CONTACTS","BODY_SENSORS"};
+        for (String p : permissions) for (String k : keys) if (p.contains(k)) { dangerousLike++; break; }
+        return " • حساسة محتملة: " + dangerousLike;
+    }
+
+    @SuppressWarnings("deprecation")
+    private String signerSummary(PackageManager pm, File apk) {
+        try {
+            PackageInfo signed = pm.getPackageArchiveInfo(apk.getAbsolutePath(), PackageManager.GET_SIGNATURES);
+            if (signed == null || signed.signatures == null || signed.signatures.length == 0) return "غير متاح";
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] digest = md.digest(signed.signatures[0].toByteArray());
+            StringBuilder b = new StringBuilder();
+            for (int i=0;i<Math.min(8,digest.length);i++) b.append(String.format("%02X", digest[i]));
+            return "SHA-256 " + b + "…";
+        } catch (Exception e) { return "تعذر القراءة"; }
     }
 
     private Set<String> readAbis(File apk) throws Exception {
