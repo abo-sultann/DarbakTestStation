@@ -26,6 +26,8 @@ public class MainActivity extends Activity {
     private static final int PICK_APK = 1001;
     private TextView fileName;
     private TextView apkInfo;
+    private Button installApk;
+    private File candidateApk;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -33,6 +35,8 @@ public class MainActivity extends Activity {
         fileName = findViewById(R.id.fileName);
         apkInfo = findViewById(R.id.apkInfo);
         Button select = findViewById(R.id.selectApk);
+        installApk = findViewById(R.id.installApk);
+        installApk.setOnClickListener(v -> installCandidate());
         findViewById(R.id.openSettings).setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
         select.setOnClickListener(v -> {
             Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
@@ -52,6 +56,8 @@ public class MainActivity extends Activity {
     private void inspect(Uri uri) {
         fileName.setText(queryName(uri));
         File temp = new File(getCacheDir(), "candidate.apk");
+        candidateApk = null;
+        installApk.setEnabled(false);
         try (InputStream in = getContentResolver().openInputStream(uri);
              FileOutputStream out = new FileOutputStream(temp)) {
             if (in == null) throw new IllegalStateException("NoInputStream");
@@ -96,6 +102,8 @@ public class MainActivity extends Activity {
             String version = candidate.versionName == null ? "—" : candidate.versionName;
             long kb = temp.length() / 1024L;
 
+            candidateApk = temp;
+            installApk.setEnabled(true);
             apkInfo.setText(
                     "الحزمة: " + candidate.packageName +
                     "\nالإصدار المرشح: " + version + " (" + candidate.versionCode + ")" +
@@ -112,6 +120,18 @@ public class MainActivity extends Activity {
                     "\nملاحظة: اعتماد T3 النهائي يتطلب الاختبار على الشاشة الحقيقية");
         } catch (Exception e) {
             apkInfo.setText("❌ فشل الفحص: " + e.getClass().getSimpleName());
+        }
+    }
+
+    private void installCandidate() {
+        if (candidateApk == null || !candidateApk.exists()) return;
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.fromFile(candidateApk), "application/vnd.android.package-archive");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (Exception e) {
+            apkInfo.append("\n❌ تعذر فتح مثبت الحزم: " + e.getClass().getSimpleName());
         }
     }
 
