@@ -38,6 +38,7 @@ public class MainActivity extends Activity {
         Button select = findViewById(R.id.selectApk);
         installApk = findViewById(R.id.installApk);
         installApk.setOnClickListener(v -> installCandidate());
+        findViewById(R.id.openReports).setOnClickListener(v -> startActivity(new Intent(this, ReportsActivity.class)));
         findViewById(R.id.openSettings).setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
         select.setOnClickListener(v -> {
             Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
