@@ -30,6 +30,8 @@
                 android:text="@string/select_apk" android:textColor="#FFFFFF" android:textSize="18sp"/>
             <Button android:id="@+id/installApk" android:layout_width="match_parent" android:layout_height="52dp"
                 android:layout_marginTop="8dp" android:text="تثبيت / تحديث APK" android:enabled="false"/>
+            <Button android:id="@+id/launchApp" android:layout_width="match_parent" android:layout_height="48dp"
+                android:layout_marginTop="6dp" android:text="تشغيل التطبيق للاختبار" android:enabled="false"/>
             <TextView android:id="@+id/fileName" android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:paddingTop="14dp" android:text="@string/no_apk" android:textColor="#6D6A64" android:textSize="16sp"/>
             <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
