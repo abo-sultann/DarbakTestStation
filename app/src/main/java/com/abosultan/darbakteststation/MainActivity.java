@@ -27,6 +27,7 @@ public class MainActivity extends Activity {
     private TextView fileName;
     private TextView apkInfo;
     private Button installApk;
+    private Button launchApp;
     private File candidateApk;
     private String lastReport = "";
     private String candidatePackage = null;
@@ -38,6 +39,8 @@ public class MainActivity extends Activity {
         apkInfo = findViewById(R.id.apkInfo);
         Button select = findViewById(R.id.selectApk);
         installApk = findViewById(R.id.installApk);
+        launchApp = findViewById(R.id.launchApp);
+        launchApp.setOnClickListener(v -> { boolean ok=launchCandidate(); apkInfo.append(ok ? "\n✅ تم بدء تشغيل التطبيق للاختبار" : "\n⚠️ التطبيق غير مثبت أو لا يملك واجهة تشغيل"); });
         installApk.setOnClickListener(v -> installCandidate());
         findViewById(R.id.openReports).setOnClickListener(v -> startActivity(new Intent(this, ReportsActivity.class)));
         findViewById(R.id.openSettings).setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
@@ -62,6 +65,7 @@ public class MainActivity extends Activity {
         candidateApk = null;
         candidatePackage = null;
         installApk.setEnabled(false);
+        launchApp.setEnabled(false);
         try (InputStream in = getContentResolver().openInputStream(uri);
              FileOutputStream out = new FileOutputStream(temp)) {
             if (in == null) throw new IllegalStateException("NoInputStream");
@@ -109,6 +113,7 @@ public class MainActivity extends Activity {
             candidateApk = temp;
             candidatePackage = candidate.packageName;
             installApk.setEnabled(true);
+            launchApp.setEnabled(getPackageManager().getLaunchIntentForPackage(candidatePackage) != null);
             lastReport = "الحزمة: " + candidate.packageName +
                     "\nالإصدار المرشح: " + version + " (" + candidate.versionCode + ")" +
                     "\nالمثبت: " + installedText +
