@@ -15,6 +15,10 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class MainActivity extends Activity {
     private static final int PICK_APK = 1001;
@@ -80,6 +84,11 @@ public class MainActivity extends Activity {
                     ? candidate.applicationInfo.minSdkVersion : 0;
             boolean android7Ok = minSdk == 0 || minSdk <= 25;
             int permissionCount = candidate.requestedPermissions == null ? 0 : candidate.requestedPermissions.length;
+            Set<String> abis = readAbis(temp);
+            String abiText = abis.isEmpty() ? "لا توجد مكتبات Native (مرن معماريًا)" : joinAbis(abis);
+            boolean acerAbiOk = abis.isEmpty() || abis.contains("x86") || abis.contains("x86_64");
+            boolean t3AbiOk = abis.isEmpty() || abis.contains("armeabi-v7a") || abis.contains("armeabi");
+            boolean t3Ready = android7Ok && t3AbiOk;
             String version = candidate.versionName == null ? "—" : candidate.versionName;
             long kb = temp.length() / 1024L;
 
@@ -92,11 +101,33 @@ public class MainActivity extends Activity {
                     "\nتوافق Android 7.1 / API 25: " + (android7Ok ? "✅" : "❌") +
                     "\nالحجم: " + kb + " KB" +
                     "\nالصلاحيات: " + permissionCount +
-                    "\n\nبوابة Acer: جاهز لبدء الاختبارات الأساسية" +
-                    "\nبوابة T3: لم تُعتمد بعد");
+                    "\nABI: " + abiText +
+                    "\n\nبوابة Acer: " + (acerAbiOk ? "✅ متوافق معماريًا" : "❌ ABI غير مناسب") +
+                    "\nبوابة T3: " + (t3Ready ? "✅ متوافق مبدئيًا" : "❌ يحتاج معالجة") +
+                    "\nملاحظة: اعتماد T3 النهائي يتطلب الاختبار على الشاشة الحقيقية");
         } catch (Exception e) {
             apkInfo.setText("❌ فشل الفحص: " + e.getClass().getSimpleName());
         }
+    }
+
+    private Set<String> readAbis(File apk) throws Exception {
+        Set<String> result = new LinkedHashSet<>();
+        try (ZipFile zip = new ZipFile(apk)) {
+            java.util.Enumeration<? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                String name = entries.nextElement().getName();
+                if (!name.startsWith("lib/") || !name.endsWith(".so")) continue;
+                String[] parts = name.split("/");
+                if (parts.length >= 3) result.add(parts[1]);
+            }
+        }
+        return result;
+    }
+
+    private String joinAbis(Set<String> abis) {
+        StringBuilder b = new StringBuilder();
+        for (String abi : abis) { if (b.length() > 0) b.append(", "); b.append(abi); }
+        return b.toString();
     }
 
     private String queryName(Uri uri) {
