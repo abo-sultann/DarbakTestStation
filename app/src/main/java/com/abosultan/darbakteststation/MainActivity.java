@@ -1,6 +1,7 @@
 package com.abosultan.darbakteststation;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -154,6 +155,26 @@ public class MainActivity extends Activity {
         Intent launch = getPackageManager().getLaunchIntentForPackage(candidatePackage);
         if (launch == null) return false;
         try { startActivity(launch); return true; } catch (Exception e) { return false; }
+    }
+
+    private String memorySnapshot(String pkg) {
+        if (pkg == null) return "RAM: غير متاح";
+        try {
+            ActivityManager am=(ActivityManager)getSystemService(ACTIVITY_SERVICE);
+            for(ActivityManager.RunningAppProcessInfo p:am.getRunningAppProcesses()) if(pkg.equals(p.processName)) {
+                android.os.Debug.MemoryInfo[] mi=am.getProcessMemoryInfo(new int[]{p.pid});
+                if(mi!=null&&mi.length>0) return "RAM PSS: " + mi[0].getTotalPss()/1024 + " MB";
+            }
+            return "RAM: التطبيق غير نشط أو القراءة مقيدة";
+        } catch(Exception e) { return "RAM: غير متاح ("+e.getClass().getSimpleName()+")"; }
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        if(candidatePackage!=null && apkInfo!=null && lastReport!=null && !lastReport.isEmpty()) {
+            String mem=memorySnapshot(candidatePackage);
+            if(!apkInfo.getText().toString().contains("RAM PSS:") && !apkInfo.getText().toString().contains("RAM: التطبيق")) apkInfo.append("\n"+mem);
+        }
     }
 
     private String testProfile(String pkg) {
