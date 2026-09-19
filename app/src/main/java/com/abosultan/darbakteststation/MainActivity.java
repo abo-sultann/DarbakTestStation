@@ -29,6 +29,7 @@ public class MainActivity extends Activity {
     private Button installApk;
     private File candidateApk;
     private String lastReport = "";
+    private String candidatePackage = null;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -59,6 +60,7 @@ public class MainActivity extends Activity {
         fileName.setText(queryName(uri));
         File temp = new File(getCacheDir(), "candidate.apk");
         candidateApk = null;
+        candidatePackage = null;
         installApk.setEnabled(false);
         try (InputStream in = getContentResolver().openInputStream(uri);
              FileOutputStream out = new FileOutputStream(temp)) {
@@ -105,6 +107,7 @@ public class MainActivity extends Activity {
             long kb = temp.length() / 1024L;
 
             candidateApk = temp;
+            candidatePackage = candidate.packageName;
             installApk.setEnabled(true);
             lastReport = "الحزمة: " + candidate.packageName +
                     "\nالإصدار المرشح: " + version + " (" + candidate.versionCode + ")" +
@@ -119,6 +122,8 @@ public class MainActivity extends Activity {
                     "\n\nبوابة Acer: " + (acerAbiOk ? "✅ متوافق معماريًا" : "❌ ABI غير مناسب") +
                     "\nبوابة T3: " + (t3Ready ? "✅ متوافق مبدئيًا" : "❌ يحتاج معالجة") +
                     "\nملاحظة: اعتماد T3 النهائي يتطلب الاختبار على الشاشة الحقيقية";
+            apkInfo.setText(lastReport);
+            lastReport += "\nTest Profile: " + testProfile(candidate.packageName);
             apkInfo.setText(lastReport);
             saveReport(candidate.packageName, lastReport);
         } catch (Exception e) {
@@ -137,6 +142,22 @@ public class MainActivity extends Activity {
                 fos.write(("Darbak Test Station\n" + new java.util.Date() + "\n\n" + report).getBytes("UTF-8"));
             }
         } catch (Exception ignored) { }
+    }
+
+    private boolean launchCandidate() {
+        if (candidatePackage == null) return false;
+        Intent launch = getPackageManager().getLaunchIntentForPackage(candidatePackage);
+        if (launch == null) return false;
+        try { startActivity(launch); return true; } catch (Exception e) { return false; }
+    }
+
+    private String testProfile(String pkg) {
+        if (pkg == null) return "عام";
+        String p = pkg.toLowerCase();
+        if (p.contains("map")) return "Darbak Maps • خريطة / GPS / حفظ موقع / استعادة الحالة";
+        if (p.contains("launcher")) return "Darbak Launcher • Home / Widgets / استئناف / Safe Mode";
+        if (p.contains("vehicle")) return "Vehicle Hub • CAN / TPMS / GPS / مصدر القراءة";
+        return "عام • تشغيل / توافق / صلاحيات / ثبات";
     }
 
     private void installCandidate() {
