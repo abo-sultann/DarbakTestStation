@@ -27,6 +27,7 @@ public class MainActivity extends Activity {
         fileName = findViewById(R.id.fileName);
         apkInfo = findViewById(R.id.apkInfo);
         Button select = findViewById(R.id.selectApk);
+        findViewById(R.id.openSettings).setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
         select.setOnClickListener(v -> {
             Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             i.addCategory(Intent.CATEGORY_OPENABLE);
