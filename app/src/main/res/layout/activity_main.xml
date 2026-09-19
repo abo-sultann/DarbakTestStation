@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:layoutDirection="rtl">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/title"
+        android:textSize="30sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/subtitle"
+        android:textSize="16sp"
+        android:paddingBottom="20dp"/>
+
+    <Button
+        android:id="@+id/selectApk"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:text="@string/select_apk"
+        android:textSize="20sp"/>
+
+    <TextView
+        android:id="@+id/fileName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/no_apk"
+        android:textSize="18sp"
+        android:paddingTop="18dp"/>
+
+    <TextView
+        android:id="@+id/apkInfo"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="@string/status_ready"
+        android:textSize="17sp"
+        android:paddingTop="12dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/t3_note"
+        android:textStyle="bold"
+        android:textSize="15sp"/>
+</LinearLayout>
