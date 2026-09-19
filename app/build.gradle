@@ -1,0 +1,23 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.abosultan.darbakteststation'
+    compileSdk 33
+
+    defaultConfig {
+        applicationId 'com.abosultan.darbakteststation'
+        minSdk 25
+        targetSdk 28
+        versionCode 1
+        versionName '0.1.0'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies { }
