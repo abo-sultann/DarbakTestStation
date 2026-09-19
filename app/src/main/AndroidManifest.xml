@@ -4,6 +4,7 @@
         android:allowBackup="false"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
+        <activity android:name=".ReportsActivity" android:screenOrientation="landscape" android:exported="false"/>
         <activity android:name=".SettingsActivity" android:screenOrientation="landscape" android:exported="false"/>
         <activity
             android:name=".MainActivity"
