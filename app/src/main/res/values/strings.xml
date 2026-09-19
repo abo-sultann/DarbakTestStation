@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Darbak Test Station</string>
+    <string name="title">محطة اختبار دربك</string>
+    <string name="subtitle">Acer / BlissOS — بوابة الاختبار قبل T3</string>
+    <string name="select_apk">اختيار APK جديد</string>
+    <string name="no_apk">لم يتم اختيار APK</string>
+    <string name="candidate">النسخة المرشحة</string>
+    <string name="package_label">الحزمة</string>
+    <string name="version_label">الإصدار</string>
+    <string name="sdk_label">Min SDK</string>
+    <string name="size_label">الحجم</string>
+    <string name="status_ready">جاهز للفحص</string>
+    <string name="t3_note">نجاح Acer لا يعني اعتماد T3 النهائي</string>
+</resources>
